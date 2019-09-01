@@ -1,4 +1,10 @@
-#include "../include/measurements.hpp"
+#include "../include/Measurement.hpp"
+
+
+extern double VSUPPLY;
+extern double SHUNT_GAIN;
+extern long SAMPLE_RATE;
+
 
 /**
  * Parses command line commands
@@ -12,22 +18,21 @@ void parseCmd (char* argv[], int argc, int& measurement_type,
                        long& numberOfSamples, char* outFile) {
   bool expectS = false;
   bool displayMessage = false;
+
   //analyse parameters
   if (argc == 1) {
     // no parameter
-    cout << R"(No command line arguments provided. Using default options.
-              Measurement type: All Points (Continuous collection of samples)
-              Output file name: output.txt
-              SHUNT GAIN of 10.0112
-              Operating Voltage = 5.0 V)" << endl;
+    cout << endl << "No command line arguments provided. Using default options." << endl;
+    cout << "Use -help for more informantion." << endl;
   } else {
      // toDo: check if i+1 is valid access
-    for (int i  = 0; i < argc; i++) {
+    for (int i  = 1; i < argc; i++) {
       // check for the measurement type flag
       if (strcmp(argv[i],"-o") == 0) {
-        strcpy(output_file_name, argv[++i]);
-      } else if (strcmp(argv[i],"-h") == 0 or strcmp(argv[i],"-help") == 0) {
+        strcpy(outFile, argv[++i]);
+      } else if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"-help") == 0)) {
         displayMessage = true;
+        break;
 
       } else if (strcmp(argv[i],"-AP") == 0) {
         measurement_type = TRIGGERED_ALL_POINTS;
@@ -55,16 +60,18 @@ void parseCmd (char* argv[], int argc, int& measurement_type,
 
       } else if (strcmp(argv[i],"-sr") == 0) {
         SAMPLE_RATE = atof(argv[++i]);
-        if (SAMPLE_RATE > 48000) SAMPLE_RATE = 48000;
+        if (SAMPLE_RATE > 48000) { SAMPLE_RATE = 48000;}
 
-      } else if (strcmp(argv[i],"-s") == 0 and expectS) {
+      } else if (strcmp(argv[i],"-s") == 0 && expectS) {
         numberOfSamples = atoi(argv[++i]);
 
       } else {
-        cout << "Invalid Syntax!" << endl;
-        displayMessage = true;        
+        cout << "Invalid Syntax with token: " << argv[i] << endl;
+        displayMessage = true;
+        break;
       }
     }
+    
 
     if (displayMessage) {
       cout << R"(
@@ -89,34 +96,43 @@ void parseCmd (char* argv[], int argc, int& measurement_type,
       exit(1);
     }
   }
+
+  cout << "=======================================================" << endl;
+  cout << "Running CMeasure with configurations:" << endl;
+  cout << "Measurement Type = " << Measurement::name(measurement_type) << endl;
+  if (measurement_type == NO_TRIGGER || measurement_type == TRIGGERED_LAST_VALUE ||
+      measurement_type == TRIGGERED_AUTOMATIC )
+    cout << "Maximum Number of Samples = " << numberOfSamples << endl;
+  cout << "Output File = " << outFile << endl;
+  cout << "Target Device Voltage = " << VSUPPLY << endl;
+  cout << "Shunt Gain = " << SHUNT_GAIN << endl;
+  cout << "Raw Sample Rate = " << SAMPLE_RATE << endl;
+  cout << "=======================================================" << endl;
+
 }
 
 
 int main (int argc, char* argv[]){
-
   //default values
   int codes_running = 33;
   int curr_code = 0;
   int measurement_type = TRIGGERED_ALL_POINTS;
   long numberOfSamples = 33;
   int result_view_mode = RESULT_VIEW_FILE;
-  char output_file_name[MAX_FILE_NAME_SIZE];
-  strcpy(output_file_name, "output");
+  char output_file_name[MAX_FILE_NAME_SIZE] = "output\0";
   std::string channel = "canalPrincipal";
 
   parseCmd(argv, argc, measurement_type, numberOfSamples, output_file_name);
    
   //initialize device
-  Measurement test("Dev1",SAMPLE_RATE,60);
-  test.addChannel("canalPrincipal","Dev1/ai0",1.0);
-  test.addChannel("canalTrigger","Dev1/ai1",10.0,1.0,false);
-  test.addChannel("canalHD","Dev1/ai2",1.0);
-  test.addChannel("canalnulo","Dev1/ai3",1.0);
+  Measurement test("Dev1", SAMPLE_RATE, 60);
+  test.addChannel("canalPrincipal","Dev1/ai0", 1.0);
+  test.addChannel("canalTrigger","Dev1/ai1", 10.0, 1.0, false);
+  // test.addChannel("canalHD","Dev1/ai2",1.0);
+  // test.addChannel("canalnulo","Dev1/ai3",1.0);
            
-  cout<<" Measurement Started "<<endl;
-  //start the measure
-
-  //for(curr_code=0; curr_code<codes_running; curr_code++) 
+  cout << " Measurement Started "<<endl;
+  //start the measurement
 	test.startMeasure(measurement_type ,numberOfSamples, result_view_mode, output_file_name, channel );
       
   cout << "Finished";

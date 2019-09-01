@@ -1,74 +1,9 @@
 #include "../include/measurement.hpp"
 
-// Channel
 
-void Channel::writeLastValue(char* fileName) {
-  FILE* output = fopen(fileName,"a+"); 
-  fprintf(output,"%f %f\n",partial_total_time,partial_sum);
-  fclose(output);
-}
-
-int Channel::addSample(float64 sample) {
-  samples[ptSample] = sample;
-   
-  ptSample = ptSample + 1;
-  // Buffer overflow
-  if(ptSample == (CHANNEL_BUFFER_SIZE -1)) {
-    printf("Warning: Channel %s buffer overflow\n ---Just for testing purpose---\n", chName.c_str());
-    ptSample = 0;
-    return (1); //houve estouro
-  }
-
-  return (0); //funcionamento normal
-}
-
-void Channel::writeOutputFile(string fileName, float64 sampleRate) {
-  ofstream output;
-  output.open(fileName);
-
-  for(long i = 0; i != ptSample; i++) { 
-    output << (ptSample*(1/sampleRate)) << "  " << samples[i] << endl; 
-  }
-
-  output.close();
-}
-
-
-void ControlChannel::setState(float64 sample) {
-  active = (sample > startLevel)? edge : !edge;
-}
-
-int ControlChannel::getBorder(float64 sample) {
-  bool lastState = active;
-  setState(sample);
-  // Positive border
-  if(this->edge) {
-    // It is in level H
-    if(lastState ) return (sample >startLevel)? 0 : -1;
-    // It is in level L
-    else return (sample < startLevel)? 0 : 1;
-  // Neg border
-  } else {
-    // It is in level L
-    if(lastState) return (sample < startLevel)? 0 : 1;
-    // It is in level H
-    else return (sample > startLevel)? 0 : -1;
-  }
-}
-
-bool ControlChannel::trigger(float64 sample) {
-  int borda = getBorder(sample);
-  if ( (edge && (borda == 1)) ||
-            (!edge && (borda == -1)) ) return true;
-  else return false;
-}
-
-bool ControlChannel::untrigger(float64 sample) {
-    int borda = getBorder(sample);
-    return  ( (edge && (borda == -1)) ||
-              (!edge &&(borda == 1)) );
-}
-
+double VSUPPLY = 5.0;
+double SHUNT_GAIN = 10;
+long SAMPLE_RATE = 48000;
 
 
 void Measurement::DAQmxErrChk(int32 error) {
@@ -249,7 +184,7 @@ cout<< "Start Acquiring Data" << endl;
   finishTasks();
 }
 
-char* Measurement::acquireMeasurements(char* filename, int numer_of_measures = 1000) {
+char* Measurement::acquireMeasurements(char* filename, int numer_of_measures) {
   DAQmxResetDevice("Dev3");
 char out[MAX_FILE_NAME_SIZE];
 
@@ -342,7 +277,7 @@ output.close();
 
 //-------------------------------------
 
-char* Measurement::acquireLastValueMeasured(char* filename, int numer_of_measures = 1000) {
+char* Measurement::acquireLastValueMeasured(char* filename, int numer_of_measures) {
 
   float64 time  = 0;
   float64 energy = 0;
@@ -443,7 +378,7 @@ return (output);
 }
 
 
-char* Measurement::acquireAutomatic(char* filename, int numer_of_measures = 1000) {
+char* Measurement::acquireAutomatic(char* filename, int numer_of_measures) {
 
   float64 time  = 0;
   float64 energy = 0;
@@ -552,7 +487,7 @@ return (output);
 
 
 
-char* Measurement::acquireTotalEnergyMeasured(char* filename, int numer_of_measures = 1000) {
+char* Measurement::acquireTotalEnergyMeasured(char* filename, int numer_of_measures) {
 
   float64 time  = 0;
   float64 energy = 0;
@@ -639,7 +574,7 @@ return(output);
 }
 
 
-void Measurement::startMeasure(int measurement_type ,  long numberOfSamples,  int result_view_mode, char* output_file_name = (char*)"output", std::string channel = "canalPrincipal")
+void Measurement::startMeasure(int measurement_type ,  long numberOfSamples,  int result_view_mode, char* output_file_name, std::string channel)
 {
   char buff[100];
   switch(measurement_type)
@@ -712,4 +647,22 @@ void Measurement::chooseName (char* original_filename,char* outfilename) {
     strcat(curr_filename,buff);
     fclose(in);
   }
+}
+
+string Measurement::name (int id) {
+  switch (id) {
+    case 0:
+      return "NO_TRIGGER";
+    case 1:
+      return "TRIGGERED_ALL_POINTS";
+    case 2:
+      return "TRIGGERED_LAST_VALUE";
+    case 3:
+      return "TRIGGERED_TOTAL_ENERGY";
+    case 4:
+      return "TRIGGERED_AUTOMATIC";
+    default:
+      return "NOT VALID MEASUREMENT TYPE";
+  }
+
 }
