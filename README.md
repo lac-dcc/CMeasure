@@ -29,6 +29,7 @@ out of the output produced by CMeasure.
 ### Pre-Requisites
 
 1. National Instruments NI-DAQmx driver:
+<br/>
 ** After installing the driver you must restart your computer before proceeding!
 [https://www.ni.com/pt-br/support/downloads/drivers/download.ni-daqmx.html#311818](https://www.ni.com/pt-br/support/downloads/drivers/download.ni-daqmx.html#311818)
 
@@ -39,6 +40,7 @@ Version 15.5.1 is the one supporting the widest range of Operating Systems, goin
 
 2. Microsoft Visual Studio C++ Building Tools
 [https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/)
+<br/>
 ** Scroll down to the *All Downloads* section and then to the *Tools for Visual Studio*. You should find a link to the **Build Tools for Visual Studio**. 
 
 <br/>
@@ -64,10 +66,10 @@ WIN_SHAREINCLUDE = C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\s
 WIN_CPPLIB = C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.22.27905\lib\onecore\x86\*lib
 ```
 
-> **WIN_CPPINCLUDE** contains headers for C/C++ standard library and others.
-> **WIN_CRTINCLUDE** contains headers for extra libraries, like string.h, assert.h, tchar.h and others.
-> **WIN_SHAREINCLUDE** contains headers for specific MS Windows libraries, for example the sdkddkver.h header.
-> **WIN_CPPLIB** contains static libraries required for building the tool, for example the libcpmt.lib.
+> **WIN_CPPINCLUDE** contains headers for C/C++ standard library and others. <br/>
+> **WIN_CRTINCLUDE** contains headers for extra libraries, like string.h, assert.h, tchar.h and others. <br/>
+> **WIN_SHAREINCLUDE** contains headers for specific MS Windows libraries, for example the sdkddkver.h header. <br/>
+> **WIN_CPPLIB** contains static libraries required for building the tool, for example the libcpmt.lib. <br/>
 
 <br/>
 
@@ -91,22 +93,23 @@ CMeasure.exe RunningType -s Samples -o Output <OPTIONS>
 ```
    where:
    - RunningType is one of -AP -LV -NT or -TE
- > -AP = Triggered by All Points (Continuous Sample Collection) (default)
-> -LV = Triggered by Last Value
-> -NT = No Trigger
-> -TE = Triggered by Total Energy
-> -AT = Triggered Automatically)" << endl << endl;
+> -AP = Triggered by All Points (Continuous Sample Collection) (default) <br/>
+> -LV = Triggered by Last Value <br/>
+> -NT = No Trigger <br/>
+> -TE = Triggered by Total Energy <br/>
+> -AT = Triggered Automatically <br/>
 
 **CMeasure + RELAY-based circuit must be executed with the Triggered All Points Options**
 
 - Samples is maximum number of samples to be collected **(Only for NT, LV, AT)**
 - Output is the name for the output file           
 - OPTIONS may be any of  **-v -sg -sr**
-> Use this to set the board operating voltage,
-> SHUNT GAIN of the resistor and sampling rate.
-> (ex: use -v 12 for 12 Volts)
-> (ex: use -sg 10 for a gain of 10))
-> (ex: use -sr 48000 for rate of 48KHz))" << endl;
+
+> Use this to set the board operating voltage, <br/>
+> SHUNT GAIN of the resistor and sampling rate. <br/>
+> (ex: use -v 12 for 12 Volts) <br/>
+> (ex: use -sg 10 for a gain of 10)) <br/>
+> (ex: use -sr 48000 for rate of 48KHz))" << endl; <br/>
 
 #### Example Usage
 ```sh
