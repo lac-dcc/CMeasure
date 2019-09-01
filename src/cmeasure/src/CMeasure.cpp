@@ -87,7 +87,8 @@ void parseCmd (char* argv[], int argc, int& measurement_type,
            -TE = Triggered by Total Energy
            -AT = Triggered Automatically)" << endl << endl;
 
-        cout << R"(<OPTIONS> -v | -sg | -sr 
+        cout << R"(
+                    <OPTIONS> -v | -sg | -sr 
                            Use this to set the board operating voltage,
                            SHUNT GAIN of the resistor and sampling rate.
                            (ex: use -v 12 for 12 Volts)
